@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QRIS Payment Gateway</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #27ae60;
+            --secondary-color: #2ecc71;
+            --accent-color: #f1c40f;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://images.unsplash.com/photo-1620207418302-439b387441b0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            opacity: 0.2;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 1s ease both;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, #fff, #f1c40f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            font-size: clamp(1rem, 1.8vw, 1.3rem);
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .qris-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 4rem;
+            animation: fadeInUp 1s ease 0.3s both;
+        }
+
+        .qris-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            border-radius: 25px;
+            padding: 4rem;
+            text-align: center;
+            transition: all 0.4s ease;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            max-width: 600px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .qris-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .qris-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255, 255, 255, 0.4),
+                rgba(255, 255, 255, 0)
+            );
+            transform: rotate(30deg);
+            transition: all 0.8s ease;
+            opacity: 0;
+        }
+
+        .qris-card:hover::before {
+            animation: shine 2s ease;
+        }
+
+        .qris-icon {
+            font-size: 6rem;
+            margin-bottom: 2.5rem;
+            color: #f1c40f;
+            filter: drop-shadow(0 5px 15px rgba(241, 196, 15, 0.4));
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        .qris-name {
+            font-size: clamp(2rem, 4vw, 3rem);
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #fff, #f1c40f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+
+        .qris-desc {
+            font-size: clamp(1rem, 1.5vw, 1.2rem);
+            opacity: 0.9;
+            margin-bottom: 3rem;
+            line-height: 1.7;
+        }
+
+        .qris-image {
+            width: 280px;
+            height: 280px;
+            margin: 0 auto 3rem;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .qris-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: white;
+            padding: 25px;
+        }
+
+        .qris-btn {
+            display: inline-block;
+            padding: 1.2rem 3rem;
+            background: linear-gradient(to right, #27ae60, #2ecc71);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .qris-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(39, 174, 96, 0.6);
+        }
+
+        .qris-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            transition: all 0.5s ease;
+        }
+
+        .qris-btn:hover::before {
+            left: 100%;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+            margin-top: 2rem;
+            animation: fadeIn 1s ease 0.6s both;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            color: #f1c40f;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .feature-desc {
+            font-size: 1.05rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 6rem;
+            padding: 3rem;
+            font-size: 1.1rem;
+            opacity: 0.8;
+            animation: fadeIn 1s ease 0.9s both;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shine {
+            0% {
+                opacity: 0;
+                transform: rotate(30deg) translate(-30%, -30%);
+            }
+            20% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: rotate(30deg) translate(30%, 30%);
+            }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Particles */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            animation: float-particle linear infinite;
+        }
+
+        @keyframes float-particle {
+            0% {
+                transform: translateY(0) translateX(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-1000px) translateX(200px);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 1024px) {
+            .container {
+                padding: 2rem 3rem;
+            }
+            
+            .qris-card {
+                padding: 3rem;
+                max-width: 550px;
+            }
+            
+            .qris-image {
+                width: 260px;
+                height: 260px;
+            }
+            
+            .features {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 2rem;
+            }
+            
+            h1 {
+                font-size: 2.8rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .qris-card {
+                padding: 3rem 2rem;
+            }
+            
+            .qris-icon {
+                font-size: 5rem;
+            }
+            
+            .qris-name {
+                font-size: 2.2rem;
+            }
+            
+            .qris-image {
+                width: 240px;
+                height: 240px;
+                margin-bottom: 2.5rem;
+            }
+            
+            .qris-btn {
+                padding: 1rem 2.5rem;
+                font-size: 1.1rem;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .feature-card {
+                padding: 2rem;
+            }
+            
+            footer {
+                margin-top: 4rem;
+                padding: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+                margin-bottom: 1rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .qris-card {
+                padding: 2rem 1.5rem;
+                border-radius: 20px;
+            }
+            
+            .qris-icon {
+                font-size: 4rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .qris-name {
+                font-size: 1.8rem;
+                margin-bottom: 1rem;
+            }
+            
+            .qris-desc {
+                font-size: 1rem;
+                margin-bottom: 2rem;
+            }
+            
+            .qris-image {
+                width: 200px;
+                height: 200px;
+                margin-bottom: 2rem;
+            }
+            
+            .feature-card {
+                padding: 1.5rem;
+            }
+            
+            .feature-icon {
+                font-size: 2.5rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .feature-title {
+                font-size: 1.3rem;
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <div class="container">
+        <header>
+            <h1>QRIS Payment Gateway</h1>
+            <p class="subtitle">Solusi pembayaran digital terintegrasi dengan standar QR code nasional Indonesia. Cepat, aman, dan praktis untuk semua kebutuhan transaksi Anda.</p>
+        </header>
+
+        <div class="qris-container">
+            <div class="qris-card">
+                <div class="qris-icon">
+                    <i class="fas fa-qrcode"></i>
+                </div>
+                <h2 class="qris-name">QRIS</h2>
+                <p class="qris-desc">Standar QR code nasional Indonesia yang memudahkan transaksi antar bank dan dompet digital dengan satu kode saja. Dikelola oleh Bank Indonesia untuk memastikan keamanan dan kenyamanan bertransaksi.</p>
+                
+                <div class="qris-image">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://qris.id/demo&bgcolor=ffffff&color=27ae60&qzone=1" alt="QRIS Code">
+                </div>
+                
+                <a href="https://files.catbox.moe/h72ga3.jpg" class="qris-btn">Bayar dengan QRIS</a>
+            </div>
+
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3 class="feature-title">Transaksi Kilat</h3>
+                    <p class="feature-desc">Proses pembayaran selesai dalam hitungan detik dengan sekali scan QR code, tanpa perlu input manual.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Keamanan Terjamin</h3>
+                    <p class="feature-desc">Dilengkapi dengan enkripsi tingkat tinggi dan sistem autentikasi untuk melindungi setiap transaksi.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Universal</h3>
+                    <p class="feature-desc">Dapat digunakan di berbagai merchant dan platform pembayaran yang mendukung QRIS di seluruh Indonesia.</p>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2023 QRIS Payment Gateway. All rights reserved.</p>
+            <p style="margin-top: 0.5rem;">Dikelola oleh Bank Indonesia</p>
+        </footer>
+    </div>
+
+    <script>
+        // Create particles
+        const particlesContainer = document.getElementById('particles');
+        const particleCount = window.innerWidth < 768 ? 20 : 30;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            
+            // Random properties
+            const size = Math.random() * (window.innerWidth < 768 ? 8 : 10) + 5;
+            const posX = Math.random() * 100;
+            const duration = Math.random() * 20 + 10;
+            const delay = Math.random() * 5;
+            
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.left = `${posX}%`;
+            particle.style.bottom = `-${size}px`;
+            particle.style.animationDuration = `${duration}s`;
+            particle.style.animationDelay = `${delay}s`;
+            particle.style.opacity = Math.random() * 0.5 + 0.1;
+            
+            particlesContainer.appendChild(particle);
+        }
+
+        // Add hover effect to QRIS card
+        const qrisCard = document.querySelector('.qris-card');
+        
+        qrisCard.addEventListener('mouseenter', () => {
+            qrisCard.querySelector('.qris-icon').style.animation = 'pulse 0.5s infinite ease-in-out';
+        });
+        
+        qrisCard.addEventListener('mouseleave', () => {
+            qrisCard.querySelector('.qris-icon').style.animation = 'pulse 2s infinite ease-in-out';
+        });
+
+        // Animate elements on scroll
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animated');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.qris-card, header, .features, footer').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Responsive adjustments for particles on resize
+        function handleResize() {
+            const currentParticles = document.querySelectorAll('.particle');
+            const desiredCount = window.innerWidth < 768 ? 20 : 30;
+            
+            if (currentParticles.length !== desiredCount) {
+                particlesContainer.innerHTML = '';
+                for (let i = 0; i < desiredCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.classList.add('particle');
+                    
+                    const size = Math.random() * (window.innerWidth < 768 ? 8 : 10) + 5;
+                    const posX = Math.random() * 100;
+                    const duration = Math.random() * 20 + 10;
+                    const delay = Math.random() * 5;
+                    
+                    particle.style.width = `${size}px`;
+                    particle.style.height = `${size}px`;
+                    particle.style.left = `${posX}%`;
+                    particle.style.bottom = `-${size}px`;
+                    particle.style.animationDuration = `${duration}s`;
+                    particle.style.animationDelay = `${delay}s`;
+                    particle.style.opacity = Math.random() * 0.5 + 0.1;
+                    
+                    particlesContainer.appendChild(particle);
+                }
+            }
+        }
+
+        window.addEventListener('resize', handleResize);
+    </script>
+</body>
+</html>
